@@ -1,45 +1,23 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useLocation } from "react-router-dom";
-import GoogleSignInForm from "../components/GoogleSignInForm.jsx";
+import MapPicker from "../components/MapPicker.jsx";
+import WallNav from "../components/WallNav.jsx";
 
 const emptyForm = {
-  title: "",
   description: "",
   locationText: "",
+  locationLat: null,
+  locationLng: null,
   image: null
 };
 
-const storageKey = "aestrUser";
-
 const UserDashboard = () => {
   const location = useLocation();
+  const imageInputRef = useRef(null);
   const [formData, setFormData] = useState(emptyForm);
-  const [submissions, setSubmissions] = useState([]);
   const [status, setStatus] = useState("idle");
-  const [account, setAccount] = useState(() => {
-    const raw = window.localStorage.getItem(storageKey);
-    if (!raw) {
-      return null;
-    }
-    try {
-      return JSON.parse(raw);
-    } catch (error) {
-      return null;
-    }
-  });
-
-  useEffect(() => {
-    const loadComplaints = async () => {
-      try {
-        const response = await fetch("/api/complaints");
-        const data = await response.json();
-        setSubmissions(data.items || []);
-      } catch (error) {
-        setSubmissions([]);
-      }
-    };
-    loadComplaints();
-  }, []);
+  const [errorMessage, setErrorMessage] = useState("");
+  const [totalCount, setTotalCount] = useState(0);
 
   useEffect(() => {
     if (location.hash === "#complaint") {
@@ -50,6 +28,26 @@ const UserDashboard = () => {
     }
   }, [location.hash]);
 
+  useEffect(() => {
+    const loadCount = async () => {
+      try {
+        const response = await fetch("/api/gallery?max=1");
+        if (!response.ok) {
+          return;
+        }
+        const text = await response.text();
+        if (!text) {
+          return;
+        }
+        const data = JSON.parse(text);
+        setTotalCount(data.totalCount || 0);
+      } catch (error) {
+        setTotalCount(0);
+      }
+    };
+    loadCount();
+  }, []);
+
   const handleChange = (event) => {
     const { name, value, files } = event.target;
     setFormData((prev) => ({
@@ -58,43 +56,20 @@ const UserDashboard = () => {
     }));
   };
 
-  const handleSignedIn = () => {
-    const raw = window.localStorage.getItem(storageKey);
-    if (!raw) {
-      setAccount(null);
-      return;
-    }
-    try {
-      setAccount(JSON.parse(raw));
-    } catch (error) {
-      setAccount(null);
-    }
-  };
-
-  const handleLogout = () => {
-    window.localStorage.removeItem(storageKey);
-    setAccount(null);
-  };
-
-  const handleGuest = () => {
-    const target = document.getElementById("complaint-form");
-    if (target) {
-      target.scrollIntoView({ behavior: "smooth" });
-    }
-  };
-
   const handleSubmit = async (event) => {
     event.preventDefault();
     setStatus("submitting");
+    setErrorMessage("");
 
     try {
+      if (!formData.image || !formData.locationLat || !formData.locationLng) {
+        throw new Error("Image and pinned location are required");
+      }
       const payload = new FormData();
-      payload.append("title", formData.title);
       payload.append("description", formData.description);
       payload.append("locationText", formData.locationText);
-      if (account?.id) {
-        payload.append("createdBy", account.id);
-      }
+      payload.append("locationLat", formData.locationLat);
+      payload.append("locationLng", formData.locationLng);
       if (formData.image) {
         payload.append("image", formData.image);
       }
@@ -105,98 +80,68 @@ const UserDashboard = () => {
       });
 
       if (!response.ok) {
-        throw new Error("Failed to submit");
+        const data = await response.json().catch(() => ({}));
+        throw new Error(data.message || "Failed to submit");
       }
 
-      const created = await response.json();
-      setSubmissions((prev) => [created, ...prev]);
+      await response.json();
       setFormData(emptyForm);
+      setErrorMessage("");
       setStatus("success");
+      if (imageInputRef.current) {
+        imageInputRef.current.value = "";
+      }
     } catch (error) {
       setStatus("error");
+      setErrorMessage(error.message || "Submission failed. Try again.");
     }
   };
 
   return (
     <div className="list">
-      <div className="card">
-        <h2 className="section-title">Citizen access</h2>
-        {!account && (
-          <div className="list">
-            <GoogleSignInForm role="user" onSuccess={handleSignedIn} />
-            <button className="button ghost" type="button" onClick={handleGuest}>
-              Complaint as guest
-            </button>
-          </div>
-        )}
-        {account && (
-          <div className="split">
-            <div>
-              <p className="muted">Signed in as</p>
-              <p>{account.name}</p>
-              <p className="muted">{account.email}</p>
-            </div>
-            <button className="button ghost" type="button" onClick={handleLogout}>
-              Sign out
-            </button>
-          </div>
-        )}
-      </div>
-
+      <WallNav totalCount={totalCount} />
       <div className="card" id="complaint-form">
-        <h2 className="section-title">Report a civic issue</h2>
+        <h2 className="section-title">File a complaint</h2>
         <form className="list" onSubmit={handleSubmit}>
-          <div className="form-grid">
-            <label className="form-control">
-              Issue title
-              <input name="title" value={formData.title} onChange={handleChange} required />
-            </label>
-            <label className="form-control">
-              Location (text)
-              <input
-                name="locationText"
-                value={formData.locationText}
-                onChange={handleChange}
-                placeholder="Street, landmark, ward"
-                required
-              />
-            </label>
-          </div>
           <label className="form-control">
-            Description
-            <textarea name="description" value={formData.description} onChange={handleChange} required />
+            Description (optional)
+            <textarea name="description" value={formData.description} onChange={handleChange} />
           </label>
           <label className="form-control">
             Upload image
-            <input type="file" name="image" accept="image/*" onChange={handleChange} />
+            <input
+              ref={imageInputRef}
+              type="file"
+              name="image"
+              accept="image/*"
+              onChange={handleChange}
+            />
           </label>
+          <div className="form-control">
+            <span>Pin location on map</span>
+            <MapPicker
+              value={{
+                lat: formData.locationLat,
+                lng: formData.locationLng,
+                text: formData.locationText
+              }}
+              onChange={(location) =>
+                setFormData((prev) => ({
+                  ...prev,
+                  locationLat: location.lat,
+                  locationLng: location.lng,
+                  locationText: location.text
+                }))
+              }
+            />
+          </div>
           <button className="button" type="submit" disabled={status === "submitting"}>
             {status === "submitting" ? "Submitting..." : "Submit complaint"}
           </button>
           {status === "success" && <p className="success-text">Complaint submitted successfully.</p>}
-          {status === "error" && <p className="error-text">Submission failed. Try again.</p>}
+          {status === "error" && <p className="error-text">{errorMessage}</p>}
         </form>
       </div>
-
-      {/* <div className="card">
-        <h2 className="section-title">Recent submissions</h2>
-        <div className="list">
-          {submissions.length === 0 && <p className="muted">No complaints yet.</p>}
-          {submissions.map((item) => (
-            <div className="card" key={item._id || item.title}>
-              <div className="split">
-                <h3>{item.title}</h3>
-                <span className={`status-pill ${item.status}`}>{item.status}</span>
-              </div>
-              <p className="muted" style={{ marginTop: 8 }}>{item.description}</p>
-              <p className="meta" style={{ marginTop: 8 }}>Location: {item.locationText}</p>
-              {item.imageUrl && (
-                <img className="image-preview" src={item.imageUrl} alt={item.title} />
-              )}
-            </div>
-          ))}
-        </div>
-      </div> */}
     </div>
   );
 };

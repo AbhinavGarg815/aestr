@@ -1,17 +1,6 @@
 import multer from "multer";
-import path from "path";
 
-const storage = multer.diskStorage({
-  destination: "uploads/",
-  filename: (req, file, cb) => {
-    const ext = path.extname(file.originalname);
-    const safeName = file.originalname
-      .replace(ext, "")
-      .replace(/[^a-z0-9-_]/gi, "-")
-      .toLowerCase();
-    cb(null, `${safeName}-${Date.now()}${ext}`);
-  }
-});
+const storage = multer.memoryStorage();
 
 const fileFilter = (req, file, cb) => {
   if (!file.mimetype.startsWith("image/")) {

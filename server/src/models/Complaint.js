@@ -2,12 +2,17 @@ import mongoose from "mongoose";
 
 const complaintSchema = new mongoose.Schema(
   {
-    title: { type: String, required: true, trim: true },
-    description: { type: String, required: true },
-    locationText: { type: String, required: true },
+    title: { type: String, trim: true },
+    description: { type: String },
+    locationText: { type: String },
     locationLat: { type: Number },
     locationLng: { type: Number },
     imageUrl: { type: String, required: true },
+    severity: {
+      type: String,
+      enum: ["low", "medium", "high"],
+      default: "low"
+    },
     status: {
       type: String,
       enum: ["open", "assigned", "resolved"],
