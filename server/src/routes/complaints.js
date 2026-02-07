@@ -80,6 +80,7 @@ router.post("/", upload.single("image"), async (req, res, next) => {
         resource_type: "image"
       });
       imageUrl = uploaded?.secure_url;
+    } catch (uploadError) {
       return res.status(502).json({ message: uploadError.message || "Image upload failed" });
     }
 
@@ -102,8 +103,12 @@ router.post("/", upload.single("image"), async (req, res, next) => {
     });
 
     res.status(201).json(complaint);
-          if (!analyzeResponse.ok) {
-            console.log("Analyzer failed with status", analyzeResponse.status);
+  } catch (error) {
+    console.error("Error creating complaint:", error);
+    next(error);
+  }
+});
+
 router.put("/:id/assign", async (req, res, next) => {
   try {
     const { authorityId } = req.body;
@@ -115,7 +120,11 @@ router.put("/:id/assign", async (req, res, next) => {
 
     if (!complaint) {
       return res.status(404).json({ message: "Complaint not found" });
-          console.log("Analyzer request error", analysisError?.message);
+    }
+
+    res.json(complaint);
+  } catch (error) {
+    next(error);
   }
 });
 
