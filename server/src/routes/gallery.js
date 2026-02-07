@@ -1,5 +1,6 @@
 import express from "express";
 import { cloudinary } from "../config/cloudinary.js";
+import Complaint from "../models/Complaint.js";
 
 const router = express.Router();
 
@@ -41,7 +42,7 @@ router.get("/", async (req, res, next) => {
       publicId: resource.public_id
     }));
 
-    const totalCount = Number(result.total_count) || items.length;
+    const totalCount = await Complaint.countDocuments();
     res.json({ items, totalCount });
   } catch (error) {
     console.error("Cloudinary fetch error:", error);

@@ -198,7 +198,7 @@ const MapPicker = ({ value, onChange }) => {
         </button>
       </div>
       <div className="map-canvas" ref={mapRef} />
-      {value?.text && <p className="muted">Pinned: {value.text}</p>}
+      {/* {value?.text && <p className="muted">Pinned: {value.text}</p>} */}
       {error && <p className="error-text">{error}</p>}
     </div>
   );

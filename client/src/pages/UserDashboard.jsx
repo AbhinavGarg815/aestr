@@ -99,24 +99,26 @@ const UserDashboard = () => {
 
   return (
     <div className="list">
-      <WallNav totalCount={totalCount} />
-      <div className="card" id="complaint-form">
+      <WallNav totalCount={totalCount} onHome={() => window.location.assign("/")} />
+      <div className="card complaint-card" id="complaint-form">
         <h2 className="section-title">File a complaint</h2>
-        <form className="list" onSubmit={handleSubmit}>
-          <label className="form-control">
-            Description (optional)
-            <textarea name="description" value={formData.description} onChange={handleChange} />
-          </label>
-          <label className="form-control">
-            Upload image
-            <input
-              ref={imageInputRef}
-              type="file"
-              name="image"
-              accept="image/*"
-              onChange={handleChange}
-            />
-          </label>
+        <form className="complaint-form" onSubmit={handleSubmit}>
+          <div className="form-control">
+            <span>Upload image</span>
+            <label className="file-input">
+              <input
+                ref={imageInputRef}
+                type="file"
+                name="image"
+                accept="image/*"
+                onChange={handleChange}
+              />
+              <span className="file-button">Choose image</span>
+              <span className="file-name">
+                {formData.image ? formData.image.name : "No file selected"}
+              </span>
+            </label>
+          </div>
           <div className="form-control">
             <span>Pin location on map</span>
             <MapPicker
@@ -135,6 +137,10 @@ const UserDashboard = () => {
               }
             />
           </div>
+          <label className="form-control">
+            Description (optional)
+            <textarea name="description" value={formData.description} onChange={handleChange} />
+          </label>
           <button className="button" type="submit" disabled={status === "submitting"}>
             {status === "submitting" ? "Submitting..." : "Submit complaint"}
           </button>

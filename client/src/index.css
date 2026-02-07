@@ -158,19 +158,88 @@ textarea {
   color: #cfcfcf;
 }
 
-.wall-cta {
+.cta-box {
   position: fixed;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
   z-index: 5;
-  padding: 18px 36px;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.88);
-  color: #141414;
-  border: 1px solid rgba(20, 20, 20, 0.12);
-  box-shadow: 0 24px 48px rgba(0, 0, 0, 0.18);
+  padding: 34px 44px;
+  border-radius: 24px;
+  background: rgba(255, 255, 255, 0.92);
+  color: #0e0e0e;
+  border: 1px solid rgba(20, 20, 20, 0.18);
+  box-shadow: 0 28px 56px rgba(0, 0, 0, 0.2);
   backdrop-filter: blur(10px);
+  display: grid;
+  gap: 14px;
+  text-align: center;
+  min-width: 320px;
+  max-width: 420px;
+}
+
+.cta-title {
+  font-size: 1.35rem;
+  font-weight: 700;
+}
+
+.cta-subtitle {
+  font-size: 0.95rem;
+  color: #5a5a5a;
+}
+
+.wall-name {
+  background: transparent;
+  border: none;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+  padding: 0;
+}
+
+.complaint-card {
+  max-width: 760px;
+  margin: 24px auto 0;
+}
+
+.complaint-form {
+  display: grid;
+  gap: 14px;
+}
+
+.complaint-form textarea {
+  min-height: 70px;
+}
+
+.file-input {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: 1px dashed rgba(20, 20, 20, 0.25);
+  background: #fafafa;
+}
+
+.file-input input {
+  display: none;
+}
+
+.file-button {
+  padding: 8px 14px;
+  border-radius: 999px;
+  background: #141414;
+  color: #f7f7f7;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.file-name {
+  font-size: 0.85rem;
+  color: #5a5a5a;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .wall-grid {

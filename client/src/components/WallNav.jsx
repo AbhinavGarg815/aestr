@@ -1,6 +1,6 @@
-const WallNav = ({ totalCount = 0 }) => (
+const WallNav = ({ totalCount = 0, onHome }) => (
   <header className="wall-nav">
-    <span className="wall-name">wallofshame</span>
+    <button className="wall-name" type="button" onClick={onHome}>wallofshame</button>
     <span className="wall-count">Total Count: {totalCount}</span>
   </header>
 );

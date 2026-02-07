@@ -36,11 +36,15 @@ const Home = () => {
 
 	return (
 		<section className="wall">
-			<WallNav totalCount={totalCount} />
+			<WallNav totalCount={totalCount} onHome={() => navigate("/")} />
 
-			<button className="wall-cta" type="button" onClick={() => navigate("/complaint")}>
-				File a complaint
-			</button>
+			<div className="cta-box">
+				<p className="cta-title">File a complaint</p>
+				{/* <p className="cta-subtitle">Upload a photo, pin the location, and submit.</p> */}
+				<button className="button" type="button" onClick={() => navigate("/complaint")}>
+					Open complaint form
+				</button>
+			</div>
 
 			<div className="wall-grid" aria-live="polite">
 				{images.map((image) => (
