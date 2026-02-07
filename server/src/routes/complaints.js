@@ -38,11 +38,17 @@ router.post("/", upload.single("image"), async (req, res, next) => {
         body: form
       });
 
+      const analyzeBodyText = await analyzeResponse.text();
       if (!analyzeResponse.ok) {
+        console.error("Analyzer error", {
+          status: analyzeResponse.status,
+          statusText: analyzeResponse.statusText,
+          body: analyzeBodyText.slice(0, 2000)
+        });
         return res.status(502).json({ message: "Image analysis failed" });
       }
 
-      const analysis = await analyzeResponse.json();
+      const analysis = analyzeBodyText ? JSON.parse(analyzeBodyText) : {};
       const isValid = Boolean(analysis?.success) && Boolean(analysis?.civic_issue?.valid);
       if (!isValid) {
         return res.status(422).json({ message: "Invalid complaint image" });
