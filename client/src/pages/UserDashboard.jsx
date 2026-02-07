@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { useLocation } from "react-router-dom";
 import MapPicker from "../components/MapPicker.jsx";
 import WallNav from "../components/WallNav.jsx";
+import { apiUrl } from "../lib/api.js";
 
 const emptyForm = {
   description: "",
@@ -31,7 +32,7 @@ const UserDashboard = () => {
   useEffect(() => {
     const loadCount = async () => {
       try {
-        const response = await fetch("/api/gallery?max=1");
+        const response = await fetch(apiUrl("/api/gallery?max=1"));
         if (!response.ok) {
           return;
         }
@@ -74,7 +75,7 @@ const UserDashboard = () => {
         payload.append("image", formData.image);
       }
 
-      const response = await fetch("/api/complaints", {
+      const response = await fetch(apiUrl("/api/complaints"), {
         method: "POST",
         body: payload
       });

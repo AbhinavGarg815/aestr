@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import WallNav from "../components/WallNav.jsx";
+import { apiUrl } from "../lib/api.js";
 
 const Home = () => {
 	const navigate = useNavigate();
@@ -12,7 +13,7 @@ const Home = () => {
 		const loadImages = async () => {
 			setStatus("loading");
 			try {
-				const response = await fetch("/api/gallery?max=60");
+				const response = await fetch(apiUrl("/api/gallery?max=60"));
         console.log("Gallery API response status:", response);
 				if (!response.ok) {
 					setStatus("error");
