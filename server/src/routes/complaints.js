@@ -16,7 +16,6 @@ router.get("/", async (req, res, next) => {
 
 router.post("/", upload.single("image"), async (req, res, next) => {
   try {
-    console.log(req)
     const { description, locationText, locationLat, locationLng, createdBy } = req.body;
     if (!locationLat || !locationLng) {
       return res.status(400).json({ message: "Location is required" });
@@ -56,6 +55,11 @@ router.post("/", upload.single("image"), async (req, res, next) => {
 
       req.analysisResult = analysis;
     } catch (analysisError) {
+      console.error("Analyzer request failed", {
+        message: analysisError?.message,
+        name: analysisError?.name,
+        cause: analysisError?.cause
+      });
       return res.status(502).json({ message: "Image analysis failed" });
     }
     if (
