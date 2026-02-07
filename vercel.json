@@ -1,0 +1,8 @@
+{
+  "rewrites": [
+    {
+      "source": "/api/(.*)",
+      "destination": "https://YOUR_CLOUD_RUN_URL/$1"
+    }
+  ]
+}

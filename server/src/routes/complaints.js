@@ -16,6 +16,7 @@ router.get("/", async (req, res, next) => {
 
 router.post("/", upload.single("image"), async (req, res, next) => {
   try {
+    console.log(req)
     const { description, locationText, locationLat, locationLng, createdBy } = req.body;
     if (!locationLat || !locationLng) {
       return res.status(400).json({ message: "Location is required" });
