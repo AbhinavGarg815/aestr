@@ -28,6 +28,7 @@ router.post("/", upload.single("image"), async (req, res, next) => {
     const analyzeUrl = `${analyzerBase.replace(/\/+$/, "")}/analyze-complete`;
 
     try {
+      console.log("Analyzer request ->", analyzeUrl);
       const form = new FormData();
       const blob = new Blob([req.file.buffer], { type: req.file.mimetype || "application/octet-stream" });
       form.append("file", blob, req.file.originalname || "complaint");
@@ -36,6 +37,7 @@ router.post("/", upload.single("image"), async (req, res, next) => {
         method: "POST",
         body: form
       });
+      console.log("Analyzer response status", analyzeResponse.status);
 
       const analyzeBodyText = await analyzeResponse.text();
       if (!analyzeResponse.ok) {
@@ -78,7 +80,6 @@ router.post("/", upload.single("image"), async (req, res, next) => {
         resource_type: "image"
       });
       imageUrl = uploaded?.secure_url;
-    } catch (uploadError) {
       return res.status(502).json({ message: uploadError.message || "Image upload failed" });
     }
 
@@ -101,12 +102,8 @@ router.post("/", upload.single("image"), async (req, res, next) => {
     });
 
     res.status(201).json(complaint);
-  } catch (error) {
-    console.error("Error creating complaint:", error);
-    next(error);
-  }
-});
-
+          if (!analyzeResponse.ok) {
+            console.log("Analyzer failed with status", analyzeResponse.status);
 router.put("/:id/assign", async (req, res, next) => {
   try {
     const { authorityId } = req.body;
@@ -118,11 +115,7 @@ router.put("/:id/assign", async (req, res, next) => {
 
     if (!complaint) {
       return res.status(404).json({ message: "Complaint not found" });
-    }
-
-    res.json(complaint);
-  } catch (error) {
-    next(error);
+          console.log("Analyzer request error", analysisError?.message);
   }
 });
 
