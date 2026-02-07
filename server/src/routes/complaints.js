@@ -14,9 +14,7 @@ router.get("/", async (req, res, next) => {
   }
 });
 
-router.post("/", upload.single("image"), async (req, res, next) => {
-  try {
-    const { description, locationText, locationLat, locationLng, createdBy } = req.body;
+router.post("/", upload.single("image"), async (req, res, nex    const { description, locationText, locationLat, locationLng, createdBy } = req.body;
     if (!locationLat || !locationLng) {
       return res.status(400).json({ message: "Location is required" });
     }
@@ -28,7 +26,6 @@ router.post("/", upload.single("image"), async (req, res, next) => {
     const analyzeUrl = `${analyzerBase.replace(/\/+$/, "")}/analyze-complete`;
 
     try {
-      console.log("Analyzer request ->", analyzeUrl);
       const form = new FormData();
       const blob = new Blob([req.file.buffer], { type: req.file.mimetype || "application/octet-stream" });
       form.append("file", blob, req.file.originalname || "complaint");
@@ -37,7 +34,6 @@ router.post("/", upload.single("image"), async (req, res, next) => {
         method: "POST",
         body: form
       });
-      console.log("Analyzer response status", analyzeResponse.status);
 
       const analyzeBodyText = await analyzeResponse.text();
       if (!analyzeResponse.ok) {
@@ -62,6 +58,8 @@ router.post("/", upload.single("image"), async (req, res, next) => {
         name: analysisError?.name,
         cause: analysisError?.cause
       });
+sResult = analysis;
+    } catch (analysisError) {
       return res.status(502).json({ message: "Image analysis failed" });
     }
     if (
@@ -158,6 +156,11 @@ router.put("/:id/resolve", upload.single("verificationImage"), async (req, res, 
     res.json(complaint);
   } catch (error) {
     next(error);
+  }
+});
+
+export default router;
+;
   }
 });
 

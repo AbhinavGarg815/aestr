@@ -11,7 +11,7 @@ import galleryRouter from "./routes/gallery.js";
 dotenv.config();
 
 const app = express();
-app.use(cors({ origin: process.env.CLIENT_ORIGIN || "http://localhost:5173" }));
+app.use(cors({ origin: process.env.CLIENT_ORIGIN || "https://aestr-anawcbeef9czg5c4.centralindia-01.azurewebsites.net" }));
 app.use(express.json());
 app.use(morgan("dev"));
 
@@ -31,7 +31,7 @@ app.use((err, req, res, next) => {
 const start = async () => {
   try {
     await connectDb(process.env.MONGO_URI);
-    const port = process.env.PORT || 5000;
+    const port = process.env.PORT || 8080;
     app.listen(port, () => {
       console.log(`Server listening on ${port}`);
     });
